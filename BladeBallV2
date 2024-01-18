@@ -1,15 +1,48 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+local replicatedStorage = game:GetService("ReplicatedStorage")
 local heartbeatConnection
 
+local Window = Rayfield:CreateWindow({
+   Name = "Blade Ball | Nate's Market",
+   LoadingTitle = "Nate's Market",
+   LoadingSubtitle = "by Nate's Market",
+   ConfigurationSaving = {
+      Enabled = false,
+      FolderName = "Nate's Market",
+      FileName = "Nate's Market"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "Ggc9b66V",
+      RememberJoins = true
+   },
+   KeySystem = false,
+   KeySettings = {
+      Title = "Nate's Market",
+      Subtitle = "Key System",
+      Note = "Join pls :) discord.gg/Ggc9b66V",
+      FileName = "Nate'sKey",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = "nateW"
+   }
+})
+
+local AutoParry = Window:CreateTab("Auto Parry", 16011872565)
+
 local function startAutoParry()
-    local player = Players.LocalPlayer
+    local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
-    local parryButtonPress = ReplicatedStorage.Remotes.ParryButtonPress
-    local ballsFolder = Workspace:WaitForChild("Balls")
+    local replicatedStorage = game:GetService("ReplicatedStorage")
+    local runService = game:GetService("RunService")
+    local parryButtonPress = replicatedStorage.Remotes.ParryButtonPress
+    local ballsFolder = workspace:WaitForChild("Balls")
+
+    print("Script successfully ran.")
 
     local function onCharacterAdded(newCharacter)
         character = newCharacter
@@ -78,7 +111,6 @@ local function startAutoParry()
             parryButtonPress:Fire()
         end
     end
-
     heartbeatConnection = game:GetService("RunService").Heartbeat:Connect(function()
         checkBallDistance()
     end)
@@ -91,37 +123,7 @@ local function stopAutoParry()
     end
 end
 
-local AutoParryToggle = nil
-
-local Window = Rayfield:CreateWindow({
-    Name = "Blade Ball | Nate's Market",
-    LoadingTitle = "Nate's Market",
-    LoadingSubtitle = "by Nate's Market",
-    ConfigurationSaving = {
-        Enabled = false,
-        FolderName = "Nate's Market",
-        FileName = "Nate's Market"
-    },
-    Discord = {
-        Enabled = true,
-        Invite = "Ggc9b66V",
-        RememberJoins = true
-    },
-    KeySystem = false,
-    KeySettings = {
-        Title = "Nate's Market",
-        Subtitle = "Key System",
-        Note = "Join pls :) discord.gg/Ggc9b66V",
-        FileName = "Nate'sKey",
-        SaveKey = true,
-        GrabKeyFromSite = false,
-        Key = "nateW"
-    }
-})
-
-local AutoParryTab = Window:CreateTab("Auto Parry", 16011872565)
-
-AutoParryToggle = AutoParryTab:CreateToggle({
+local AutoParryToggle = AutoParry:CreateToggle({
     Name = "Auto Parry",
     CurrentValue = false,
     Flag = "AutoParryFlag",
