@@ -1,0 +1,214 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local heartbeatConnection
+
+local function startAutoParry()
+    local player = Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local parryButtonPress = ReplicatedStorage.Remotes.ParryButtonPress
+    local ballsFolder = Workspace:WaitForChild("Balls")
+
+    local function onCharacterAdded(newCharacter)
+        character = newCharacter
+    end
+
+    player.CharacterAdded:Connect(onCharacterAdded)
+
+    local focusedBall = nil  
+
+    local function chooseNewFocusedBall()
+        local balls = ballsFolder:GetChildren()
+        focusedBall = nil
+        for _, ball in ipairs(balls) do
+            if ball:GetAttribute("realBall") == true then
+                focusedBall = ball
+                break
+            end
+        end
+    end
+
+    chooseNewFocusedBall()
+
+    local function timeUntilImpact(ballVelocity, distanceToPlayer, playerVelocity)
+        local directionToPlayer = (character.HumanoidRootPart.Position - focusedBall.Position).Unit
+        local velocityTowardsPlayer = ballVelocity:Dot(directionToPlayer) - playerVelocity:Dot(directionToPlayer)
+        
+        if velocityTowardsPlayer <= 0 then
+            return math.huge
+        end
+        
+        local distanceToBeCovered = distanceToPlayer - 42
+        return distanceToBeCovered / velocityTowardsPlayer
+    end
+
+    local BASE_THRESHOLD = 0.16
+    local VELOCITY_SCALING_FACTOR = 0.002
+
+    local function getDynamicThreshold(ballVelocityMagnitude)
+        local adjustedThreshold = BASE_THRESHOLD - (ballVelocityMagnitude * VELOCITY_SCALING_FACTOR)
+        return math.max(0.12, adjustedThreshold)
+    end
+
+    local function checkBallDistance()
+        if not character:FindFirstChild("Highlight") then return end
+        local charPos = character.PrimaryPart.Position
+        local charVel = character.PrimaryPart.Velocity
+
+        if focusedBall and not focusedBall.Parent then
+            chooseNewFocusedBall()
+        end
+
+        if not focusedBall then return end
+
+        local ball = focusedBall
+        local distanceToPlayer = (ball.Position - charPos).Magnitude
+
+        if distanceToPlayer < 10 then
+            parryButtonPress:Fire()
+            return
+        end
+
+        local timeToImpact = timeUntilImpact(ball.Velocity, distanceToPlayer, charVel)
+        local dynamicThreshold = getDynamicThreshold(ball.Velocity.Magnitude)
+
+        if timeToImpact < dynamicThreshold then
+            parryButtonPress:Fire()
+        end
+    end
+
+    heartbeatConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        checkBallDistance()
+    end)
+end
+
+local function stopAutoParry()
+    if heartbeatConnection then
+        heartbeatConnection:Disconnect()
+        heartbeatConnection = nil
+    end
+end
+
+local AutoParryToggle = nil
+
+local AutoOpen = Window:CreateTab("Auto Chest")
+local Window = Rayfield:CreateWindow({
+    Name = "Blade Ball | Nate's Market",
+    LoadingTitle = "Nate's Market",
+    LoadingSubtitle = "by Nate's Market",
+    ConfigurationSaving = {
+        Enabled = false,
+        FolderName = "Nate's Market",
+        FileName = "Nate's Market"
+    },
+    Discord = {
+        Enabled = true,
+        Invite = "Ggc9b66V",
+        RememberJoins = true
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Nate's Market",
+        Subtitle = "Key System",
+        Note = "Join pls :) discord.gg/Ggc9b66V",
+        FileName = "Nate'sKey",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = "nateW"
+    }
+})
+
+local AutoParryTab = Window:CreateTab("Auto Parry", 16011872565)
+
+AutoParryToggle = AutoParryTab:CreateToggle({
+    Name = "Auto Parry",
+    CurrentValue = false,
+    Flag = "AutoParryFlag",
+    Callback = function(Value)
+        if Value then
+            startAutoParry()
+        else
+            stopAutoParry()
+        end
+    end,
+})
+
+local CoreGui = game:GetService("StarterGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+function sendNotif(explosion)
+    CoreGui:SetCore("SendNotification", {
+        Title = "Auto Explosion Crate";
+        Text = explosion;
+        Duration = 3;
+        Icon = "rbxassetid://16011872565";
+    })
+end
+
+function getExplosion()
+    local _, explosion = ReplicatedStorage.Remotes.Store.RequestOpenExplosionBox:InvokeServer()
+    return explosion
+end
+
+local OpenExplosionCrate = AutoOpen:CreateButton({
+   Name = "Open Explosion Crate",
+   Callback = function()
+  sendNotif(getExplosion())
+end,
+})
+
+
+function sendNotif(sword)
+    CoreGui:SetCore("SendNotification", {
+        Title = "Auto Weapon Crate";
+        Text = sword;
+        Duration = 3;
+        Icon = "rbxassetid://16011872565";
+    })
+end
+
+function getSword()
+    local _, sword = ReplicatedStorage.Remotes.Store.RequestOpenSwordBox:InvokeServer()
+    return sword
+end
+
+local OpenWeaponCrate = AutoOpen:CreateButton({
+   Name = "Open Weapon Crate",
+   Callback = function()
+    sendNotif(getSword())
+end,
+})
+
+local OpenExplosionCrateToggle = AutoOpen:CreateToggle({
+    Name = "Auto Open Explosion Crate",
+    CurrentValue = false,
+    Flag = "ExplosionCrate",
+    Callback = function(Value)
+        OpenExplosionCrate = Value
+
+        while true do wait()
+            if OpenExplosionCrate then
+
+  sendNotif(getExplosion())
+
+            end
+    end
+    end,
+})
+
+local OpenWeaponCrateToggle = AutoOpen:CreateToggle({
+    Name = "Auto Open Weapon Cratee (Disable before re-executing script, cuz of configuration)",
+    CurrentValue = false,
+    Flag = "OpenWeaponCrate",
+    Callback = function(Value)
+        OpenSwordCrate = Value
+
+        while true do wait()
+            if OpenSwordCrate then
+sendNotif(getSword())
+            end
+    end
+    end,
+})
