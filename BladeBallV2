@@ -93,8 +93,6 @@ end
 
 local AutoParryToggle = nil
 
-local AutoOpen = Window:CreateTab("Auto Chest")
-
 local Window = Rayfield:CreateWindow({
     Name = "Blade Ball | Nate's Market",
     LoadingTitle = "Nate's Market",
