@@ -94,47 +94,6 @@ end
 local AutoParryToggle = nil
 
 local AutoOpen = Window:CreateTab("Auto Chest")
-local Window = Rayfield:CreateWindow({
-    Name = "Blade Ball | Nate's Market",
-    LoadingTitle = "Nate's Market",
-    LoadingSubtitle = "by Nate's Market",
-    ConfigurationSaving = {
-        Enabled = false,
-        FolderName = "Nate's Market",
-        FileName = "Nate's Market"
-    },
-    Discord = {
-        Enabled = true,
-        Invite = "Ggc9b66V",
-        RememberJoins = true
-    },
-    KeySystem = false,
-    KeySettings = {
-        Title = "Nate's Market",
-        Subtitle = "Key System",
-        Note = "Join pls :) discord.gg/Ggc9b66V",
-        FileName = "Nate'sKey",
-        SaveKey = true,
-        GrabKeyFromSite = false,
-        Key = "nateW"
-    }
-})
-
-local AutoParryTab = Window:CreateTab("Auto Parry", 16011872565)
-
-AutoParryToggle = AutoParryTab:CreateToggle({
-    Name = "Auto Parry",
-    CurrentValue = false,
-    Flag = "AutoParryFlag",
-    Callback = function(Value)
-        if Value then
-            startAutoParry()
-        else
-            stopAutoParry()
-        end
-    end,
-})
-
 local CoreGui = game:GetService("StarterGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -210,5 +169,45 @@ local OpenWeaponCrateToggle = AutoOpen:CreateToggle({
 sendNotif(getSword())
             end
     end
+    end,
+})
+local Window = Rayfield:CreateWindow({
+    Name = "Blade Ball | Nate's Market",
+    LoadingTitle = "Nate's Market",
+    LoadingSubtitle = "by Nate's Market",
+    ConfigurationSaving = {
+        Enabled = false,
+        FolderName = "Nate's Market",
+        FileName = "Nate's Market"
+    },
+    Discord = {
+        Enabled = true,
+        Invite = "Ggc9b66V",
+        RememberJoins = true
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Nate's Market",
+        Subtitle = "Key System",
+        Note = "Join pls :) discord.gg/Ggc9b66V",
+        FileName = "Nate'sKey",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = "nateW"
+    }
+})
+
+local AutoParryTab = Window:CreateTab("Auto Parry", 16011872565)
+
+AutoParryToggle = AutoParryTab:CreateToggle({
+    Name = "Auto Parry",
+    CurrentValue = false,
+    Flag = "AutoParryFlag",
+    Callback = function(Value)
+        if Value then
+            startAutoParry()
+        else
+            stopAutoParry()
+        end
     end,
 })
